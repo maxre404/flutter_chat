@@ -1,5 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_chat/home_page.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
+
+import 'Singleton.dart';
 
 void main() {
   runApp(const MyApp());
@@ -47,10 +52,16 @@ class _MyHomePageState extends State<MyHomePage> {
       try {
         final channel = WebSocketChannel.connect(
                 // Uri.parse('ws://localhost:8080/websocket/$inputText'),
-                Uri.parse('ws://localhost:8080/websocket/username'),
+                Uri.parse('ws://localhost:8080/websocket/$inputText'),
               );
-        channel.stream.listen((event) {
-          print('连接成功');
+        StreamSubscription streamSubscription = channel.stream.listen((event) {
+          Singleton.getInstance().channel = channel;
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const HomePage(nickName: "",),
+            ),
+          );
         },onDone: (){
           print('finish');
         });
