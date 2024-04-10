@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 class Singleton {
@@ -16,5 +18,6 @@ class Singleton {
   }
 
   WebSocketChannel? channel;
+  final streamController = StreamController.broadcast();
 
 }

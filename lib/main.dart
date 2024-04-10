@@ -37,7 +37,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final  inputController = TextEditingController();
+  final inputController = TextEditingController(text: "jkl");
 
   int _counter = 0;
 
@@ -46,34 +46,34 @@ class _MyHomePageState extends State<MyHomePage> {
       _counter++;
     });
   }
-  void _webSocketLogin(){
+
+  void _webSocketLogin() {
     var inputText = inputController.text;
-    if(inputText.isNotEmpty){
+    if (inputText.isNotEmpty) {
       try {
         final channel = WebSocketChannel.connect(
-                // Uri.parse('ws://localhost:8080/websocket/$inputText'),
-                Uri.parse('ws://localhost:8080/websocket/$inputText'),
-              );
-        StreamSubscription streamSubscription = channel.stream.listen((event) {
-          Singleton.getInstance().channel = channel;
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const HomePage(nickName: "",),
+          // Uri.parse('ws://localhost:8080/websocket/$inputText'),
+          Uri.parse('ws://192.192.191.104:8080/websocket/$inputText'),
+        );
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const HomePage(
+              nickName: "",
             ),
-          );
-        },onDone: (){
-          print('finish');
-        });
+          ),
+        );
+        Singleton.getInstance().channel = channel;
+        Singleton.getInstance().streamController.addStream(channel.stream);
       } catch (e) {
         print(e);
         print('连接失败:$e');
       }
-
     }
     // ws://localhost:8080
     print('打印:text:$inputText');
   }
+
   @override
   void dispose() {
     inputController.dispose();
@@ -89,7 +89,7 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Center(
         child: Container(
-          margin: const EdgeInsets.only(left: 20,right: 20),
+          margin: const EdgeInsets.only(left: 20, right: 20),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
@@ -103,7 +103,8 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
               // ),
               const Padding(padding: EdgeInsets.only(top: 20)),
-              MaterialButton(onPressed: _webSocketLogin,
+              MaterialButton(
+                onPressed: _webSocketLogin,
                 color: Colors.blue,
                 textColor: Colors.white,
                 child: const Text("登录"),
