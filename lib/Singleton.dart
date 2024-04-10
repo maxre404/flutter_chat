@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:web_socket_channel/web_socket_channel.dart';
 
+import 'entity/SocketUser.dart';
+
 class Singleton {
   // 声明一个私有的静态变量_instance，用来保存单例实例
   static Singleton? _instance;
@@ -19,5 +21,7 @@ class Singleton {
 
   WebSocketChannel? channel;
   final streamController = StreamController.broadcast();
+
+  SocketUser? mySelf;
 
 }
