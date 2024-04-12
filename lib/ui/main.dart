@@ -1,10 +1,13 @@
 import 'dart:async';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_chat/entity/UserLogin.dart';
 import 'package:flutter_chat/ui/home_page.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 import '../Singleton.dart';
+import 'package:flutter_chat/Extensions.dart';
 
 void main() {
   runApp(const MyApp());
@@ -38,34 +41,40 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final inputController = TextEditingController(text: "jkl");
-
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
-
-  void _webSocketLogin() {
+  Future<void> _webSocketLogin() async {
      var inputText = inputController.text;
     if (inputText.isNotEmpty) {
       try {
-        final channel = WebSocketChannel.connect(
-          Uri.parse('ws://localhost:8080/websocket/$inputText'),
-          // Uri.parse('ws://192.168.1.252:8080/websocket/$inputText'),
-          // Uri.parse('ws://192.192.191.104:8080/websocket/$inputText'),
-        );
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => HomePage(
-              nickName: inputText,
+        var dio = Dio();
+        dio.options.baseUrl = "http://localhost:8080";
+        // 发起 POST 请求
+        Response response = await dio.post('/login', data: {
+          'userName': inputText,
+        });
+        if (response.statusCode == 200) {
+          print('http请求成功:${response.data}');
+          var userId = response.data["userId"];
+          var userName = response.data["userName"];
+          var imgUrl = response.data["imgUrl"];
+          Singleton.getInstance().mySelf = UserLogin(userId, userName,imgUrl);
+          final channel = WebSocketChannel.connect(
+            Uri.parse('ws://localhost:8080/websocket/$userId/$inputText'),
+            // Uri.parse('ws://192.168.1.252:8080/websocket/$inputText'),
+            // Uri.parse('ws://192.192.191.104:8080/websocket/$inputText'),
+          );
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => HomePage(
+                nickName: inputText,
+              ),
             ),
-          ),
-        );
-        Singleton.getInstance().channel = channel;
-        Singleton.getInstance().streamController.addStream(channel.stream);
+          );
+          Singleton.getInstance().channel = channel;
+          Singleton.getInstance().streamController.addStream(channel.stream);
+        }else{
+          print('处理失败');
+        }
       } catch (e) {
         print(e);
         print('连接失败:$e');

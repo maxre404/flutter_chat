@@ -33,15 +33,23 @@ class _HomePageState extends State<HomePage> {
         print('cmd:$cmd');
         switch (cmd) {
           case cmdUserInfo_99:
-            Singleton.getInstance().mySelf = SocketUser.fromJson(jsonMap["data"]);
+           var  socketUser = SocketUser.fromJson(jsonMap["data"]);
+           if(socketUser.userId!=Singleton.getInstance().mySelf?.userId){
+             userList.add(socketUser);
+             updateUi();
+           }
+           print('新用户上线:$socketUser');
+            // Singleton.getInstance().mySelf = SocketUser.fromJson(jsonMap["data"]);
             break;
           case cmdGetOnlineUser_100:
             List<dynamic> data = jsonMap["data"];
             for (var element in data) {
               var socketUser = SocketUser.fromJson(element);
-              userList.add(socketUser);
+              if(socketUser.userId!=Singleton.getInstance().mySelf?.userId){
+                userList.add(socketUser);
+              }
             }
-            setState(() {});
+            updateUi();
             break;
         }
         print(jsonMap.toString());
@@ -104,5 +112,10 @@ class _HomePageState extends State<HomePage> {
           },
           itemCount: userList.length),
     );
+  }
+  void updateUi(){
+    setState(() {
+
+    });
   }
 }

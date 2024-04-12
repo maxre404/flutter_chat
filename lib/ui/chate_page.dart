@@ -38,7 +38,7 @@ class _ChatPageState extends State<ChatPage> {
 
   void _handleSubmitted(String text) {
     _textController.clear();
-    String message = '{"cmd":"$cmdChat101","type":"1","fromUser":"${Singleton.getInstance().mySelf?.sessionId}","toUser":"${widget.chatUser.sessionId}","message":"$text"}';
+    String message = '{"cmd":"$cmdChat101","type":"1","fromUser":"${Singleton.getInstance().mySelf?.userId}","toUser":"${widget.chatUser.userId}","message":"$text"}';
     Singleton.getInstance().channel?.sink.add(message);
     // setState(() {
     //   _messages.insert(0, text);
@@ -82,9 +82,9 @@ class _ChatPageState extends State<ChatPage> {
               itemCount: _messages.length,
               itemBuilder: (context, index) {
                 var message = _messages[index];
-                if(message.fromUser == Singleton.getInstance().mySelf?.sessionId){
+                if(message.fromUser == Singleton.getInstance().mySelf?.userId){
                   print('自己发送的对话哦');
-                  return  Padding(padding: EdgeInsets.all(10),child:
+                  return  Padding(padding: const EdgeInsets.all(10),child:
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
@@ -108,7 +108,7 @@ class _ChatPageState extends State<ChatPage> {
                       ClipRRect(
                         borderRadius: BorderRadius.circular(10),
                         child: Image.network(
-                          Singleton.getInstance().mySelf?.imgUrl??"",
+                          widget.chatUser.imgUrl??"",
                           width: 40,
                           height: 40,
                           fit: BoxFit.cover,

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter_chat/entity/UserLogin.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 import 'entity/SocketUser.dart';
@@ -22,6 +23,7 @@ class Singleton {
   WebSocketChannel? channel;
   final streamController = StreamController.broadcast();
 
-  SocketUser? mySelf;
+  // SocketUser? mySelf;
+  UserLogin? mySelf;
 
 }
