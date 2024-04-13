@@ -2,7 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_chat/entity/SocketUser.dart';
-import 'package:flutter_chat/ui/chate_page.dart';
+import 'package:flutter_chat/ui/chat_page.dart';
+import 'package:flutter_chat/ui/group_chate_page.dart';
 
 import '../Command.dart';
 import '../Singleton.dart';
@@ -77,7 +78,15 @@ class _HomePageState extends State<HomePage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => ChatPage(chatUser: onlineUser,),
+                    // builder: (context) => ChatPage(chatUser: onlineUser,),
+                    builder: (context){
+                      if(onlineUser.type==0){
+                        return GroupChatPage(chatUser: onlineUser);
+                      }else{
+                        return ChatPage(chatUser: onlineUser,);
+                      }
+
+                    }
                   ),
                 )
               },
