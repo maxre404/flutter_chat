@@ -51,7 +51,7 @@ class _ChatPageState extends State<GroupChatPage> {
 
   void _handleSubmitted(String text) {
     _textController.clear();
-    String message = '{"cmd":"$cmdChat101","type":"0","fromUser":"${Singleton.getInstance().mySelf?.userId}","toUser":"","groupId":"${widget.chatUser.groupId}","message":"$text"}';
+    String message = '{"cmd":"$cmdChat101","type":"0","fromUser":"${Singleton.getInstance().mySelf?.userId}","fromUserName":"${Singleton.getInstance().mySelf?.userName}","toUser":"","groupId":"${widget.chatUser.groupId}","message":"$text"}';
     Singleton.getInstance().channel?.sink.add(message);
     // setState(() {
     //   _messages.insert(0, text);
@@ -135,7 +135,7 @@ class _ChatPageState extends State<GroupChatPage> {
                         ),
                       ),
                       const Padding(padding: EdgeInsets.only(left: 10)),
-                      Text(message.message)
+                      Text("${message.fromUserName}:\n${message.message}")
                     ],
                   ),);
                 }

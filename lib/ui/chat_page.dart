@@ -60,7 +60,7 @@ class _ChatPageState extends State<ChatPage> {
   void _handleSubmitted(String text) {
     _textController.clear();
     String message =
-        '{"cmd":"$cmdChat101","type":"1","fromUser":"${Singleton.getInstance().mySelf?.userId}","toUser":"${widget.chatUser.userId}","message":"$text"}';
+        '{"cmd":"$cmdChat101","type":"1","fromUser":"${Singleton.getInstance().mySelf?.userId}","fromUserName":"${Singleton.getInstance().mySelf?.userName}","toUser":"${widget.chatUser.userId}","message":"$text"}';
     Singleton.getInstance().channel?.sink.add(message);
     // setState(() {
     //   _messages.insert(0, text);
@@ -106,8 +106,7 @@ class _ChatPageState extends State<ChatPage> {
               itemCount: _messages.length,
               itemBuilder: (context, index) {
                 var message = _messages[index];
-                if (message.fromUser ==
-                    Singleton.getInstance().mySelf?.userId) {
+                if (message.fromUser == Singleton.getInstance().mySelf?.userId) {
                   return Padding(
                     padding: const EdgeInsets.all(10),
                     child: Row(
@@ -142,7 +141,7 @@ class _ChatPageState extends State<ChatPage> {
                           ),
                         ),
                         const Padding(padding: EdgeInsets.only(left: 10)),
-                        Text(message.message)
+                        Text("${widget.chatUser.name}:\n${message.message}")
                       ],
                     ),
                   );
