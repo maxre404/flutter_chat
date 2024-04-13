@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_chat/entity/Message.dart';
+import 'package:flutter_chat/http/ApiService.dart';
 
 import '../Singleton.dart';
 import '../entity/SocketUser.dart';
@@ -9,7 +10,7 @@ import 'package:flutter_chat/Command.dart';
 
 class GroupChatPage extends StatefulWidget {
   final SocketUser chatUser;//聊天对象
-  const GroupChatPage({Key? key,required this.chatUser}) : super(key: key);
+  const GroupChatPage({super.key,required this.chatUser});
 
   @override
   State<GroupChatPage> createState() => _ChatPageState();
@@ -21,12 +22,12 @@ class _ChatPageState extends State<GroupChatPage> {
 
   @override
   void initState() {
+    getMessageList();
     Singleton.getInstance().streamController.stream.listen((event) {
       String jsonData = event.toString();
       Map<String, dynamic> jsonMap = jsonDecode(jsonData);
       int cmd = jsonMap["cmd"];
       if(cmd == cmdChat101){
-        print('打印聊天界面收到的消息:$jsonData');
         var message = Message.fromJson(jsonMap["data"]);
         if(message.type==0){
           _messages.insert(0, message);
@@ -35,6 +36,17 @@ class _ChatPageState extends State<GroupChatPage> {
       }
     });
     super.initState();
+  }
+  Future<void> getMessageList() async {
+    List<dynamic> messageList = await ApiService().post("/messageList", {"type":"0","groupId":"$chatGroupId","fromUser":"","toUser":""}) ;
+    print('获取结果:$messageList');
+    for (var element in messageList) {
+      // _messages.add(Message.fromJson(element));
+      _messages.insert(0, Message.fromJson(element));
+    }
+    if(messageList.isNotEmpty){
+      updateUi();
+    }
   }
 
   void _handleSubmitted(String text) {
@@ -46,8 +58,10 @@ class _ChatPageState extends State<GroupChatPage> {
     // });
   }
   void updateUi(){
-    setState(() {
-    });
+    if(mounted){
+      setState(() {
+      });
+    }
 }
 
   Widget _buildTextComposer() {
@@ -90,7 +104,6 @@ class _ChatPageState extends State<GroupChatPage> {
               itemBuilder: (context, index) {
                 var message = _messages[index];
                 if(message.fromUser == Singleton.getInstance().mySelf?.userId){
-                  print('自己发送的对话哦');
                   return  Padding(padding: const EdgeInsets.all(10),child:
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,

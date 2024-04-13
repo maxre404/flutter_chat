@@ -111,7 +111,7 @@ class _HomePageState extends State<HomePage> {
                 },
                 child: Padding(
                   padding: const EdgeInsets.all(10),
-                  child: Expanded(child: Row(
+                  child: Row(
                     children: [
                       ClipRRect(
                         borderRadius: BorderRadius.circular(10),
@@ -145,7 +145,7 @@ class _HomePageState extends State<HomePage> {
                         ],
                       )
                     ],
-                  )),
+                  ),
                 ),
 
               );
@@ -164,8 +164,9 @@ class _HomePageState extends State<HomePage> {
     );
   }
   void updateUi(){
-    setState(() {
-
-    });
+    if(mounted){
+      setState(() {
+      });
+    }
   }
 }

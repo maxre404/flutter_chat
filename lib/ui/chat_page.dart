@@ -7,6 +7,8 @@ import '../Singleton.dart';
 import '../entity/SocketUser.dart';
 import 'package:flutter_chat/Command.dart';
 
+import '../http/ApiService.dart';
+
 class ChatPage extends StatefulWidget {
   final SocketUser chatUser; //聊天对象
   const ChatPage({Key? key, required this.chatUser}) : super(key: key);
@@ -21,6 +23,7 @@ class _ChatPageState extends State<ChatPage> {
 
   @override
   void initState() {
+    getMessageList();
     Singleton.getInstance().streamController.stream.listen((event) {
       String jsonData = event.toString();
       Map<String, dynamic> jsonMap = jsonDecode(jsonData);
@@ -38,9 +41,20 @@ class _ChatPageState extends State<ChatPage> {
     });
     super.initState();
   }
-
+  Future<void> getMessageList() async {
+    List<dynamic> messageList = await ApiService().post("/messageList", {"type":"1","groupId":"0","fromUser":"${Singleton.getInstance().mySelf?.userId}","toUser":"${widget.chatUser.userId}"}) ;
+    for (var element in messageList) {
+      // _messages.add(Message.fromJson(element));
+      _messages.insert(0, Message.fromJson(element));
+    }
+    if(messageList.isNotEmpty){
+      updateUi();
+    }
+  }
   void updateUi() {
-    setState(() {});
+    if(mounted){
+      setState(() {});
+    }
   }
 
   void _handleSubmitted(String text) {
@@ -94,7 +108,6 @@ class _ChatPageState extends State<ChatPage> {
                 var message = _messages[index];
                 if (message.fromUser ==
                     Singleton.getInstance().mySelf?.userId) {
-                  print('自己发送的对话哦');
                   return Padding(
                     padding: const EdgeInsets.all(10),
                     child: Row(

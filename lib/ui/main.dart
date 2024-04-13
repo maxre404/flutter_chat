@@ -6,6 +6,7 @@ import 'package:flutter_chat/entity/UserLogin.dart';
 import 'package:flutter_chat/ui/home_page.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
+import 'package:flutter_chat/http/Api.dart';
 
 import '../Singleton.dart';
 import 'package:flutter_chat/Extensions.dart';
@@ -47,7 +48,7 @@ class _MyHomePageState extends State<MyHomePage> {
     if (inputText.isNotEmpty) {
       try {
         var dio = Dio();
-        dio.options.baseUrl = "http://localhost:8080";
+        dio.options.baseUrl = baseApi;
         // 发起 POST 请求
         Response response = await dio.post('/login', data: {
           'userName': inputText,
@@ -59,7 +60,7 @@ class _MyHomePageState extends State<MyHomePage> {
           var imgUrl = response.data["imgUrl"];
           Singleton.getInstance().mySelf = UserLogin(userId, userName,imgUrl);
           final channel = WebSocketChannel.connect(
-            Uri.parse('ws://localhost:8080/websocket/$userId/$inputText'),
+            Uri.parse('$baseWebSocket$userId/$inputText'),
             // Uri.parse('ws://localhost:8080/ok/$userId/$inputText'),
             // Uri.parse('ws://192.168.1.252:8080/websocket/$inputText'),
             // Uri.parse('ws://192.192.191.104:8080/websocket/$inputText'),
