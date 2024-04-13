@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat/entity/UserLogin.dart';
 import 'package:flutter_chat/ui/home_page.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 import '../Singleton.dart';
@@ -59,9 +60,15 @@ class _MyHomePageState extends State<MyHomePage> {
           Singleton.getInstance().mySelf = UserLogin(userId, userName,imgUrl);
           final channel = WebSocketChannel.connect(
             Uri.parse('ws://localhost:8080/websocket/$userId/$inputText'),
+            // Uri.parse('ws://localhost:8080/ok/$userId/$inputText'),
             // Uri.parse('ws://192.168.1.252:8080/websocket/$inputText'),
             // Uri.parse('ws://192.192.191.104:8080/websocket/$inputText'),
           );
+          await channel.ready;
+          print('websocket连接成功');
+          Singleton.getInstance().channel = channel;
+          Singleton.getInstance().streamController.addStream(channel.stream);
+          Navigator.of(context).pop();
           Navigator.push(
             context,
             MaterialPageRoute(
@@ -70,14 +77,14 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ),
           );
-          Singleton.getInstance().channel = channel;
-          Singleton.getInstance().streamController.addStream(channel.stream);
+
         }else{
           print('处理失败');
         }
       } catch (e) {
         print(e);
         print('连接失败:$e');
+        Fluttertoast.showToast(msg: "$e",gravity: ToastGravity.CENTER);
       }
     }
     // ws://localhost:8080
@@ -96,6 +103,7 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(widget.title),
+          elevation: 4
       ),
       body: Center(
         child: Container(

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:collection';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_chat/entity/SocketUser.dart';
@@ -8,6 +9,8 @@ import 'package:flutter_chat/ui/group_chate_page.dart';
 import '../Command.dart';
 import '../Singleton.dart';
 import 'dart:convert';
+
+import '../entity/Message.dart';
 
 class HomePage extends StatefulWidget {
   final String nickName;
@@ -20,6 +23,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   var userList = [];
+  HashMap<String,Message> messageMap=HashMap();
 
   @override
   void initState() {
@@ -52,6 +56,15 @@ class _HomePageState extends State<HomePage> {
             }
             updateUi();
             break;
+          case cmdChat101:
+            var message = Message.fromJson(jsonMap["data"]);
+            if(message.type==0){
+              messageMap["$chatGroupId"] = message;
+            }else{
+              messageMap["${message.fromUser}}"];
+            }
+            updateUi();
+            break;
         }
         print(jsonMap.toString());
         // int cmd = jsonMap["cmd"];
@@ -67,59 +80,87 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: const Text("在线列表"),
         leading: null,
+          elevation: 24
       ),
-      body: ListView.builder(
-          itemBuilder: (context, index) {
-            SocketUser onlineUser = userList[index];
-            return MaterialButton(
-              onPressed: () => {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    // builder: (context) => ChatPage(chatUser: onlineUser,),
-                    builder: (context){
-                      if(onlineUser.type==0){
-                        return GroupChatPage(chatUser: onlineUser);
-                      }else{
-                        return ChatPage(chatUser: onlineUser,);
-                      }
+      body: Container(
+        margin: const EdgeInsets.only(top: 20),
+        child: ListView.separated(
+            itemBuilder: (context, index) {
+              SocketUser onlineUser = userList[index];
+              var userId = onlineUser.type==0?"$chatGroupId":onlineUser.userId;
+              var lastMessage = messageMap[userId];
+              return MaterialButton(
+                onPressed: () => {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      // builder: (context) => ChatPage(chatUser: onlineUser,),
+                        builder: (context){
+                          if(onlineUser.type==0){
+                            return GroupChatPage(chatUser: onlineUser);
+                          }else{
+                            return ChatPage(chatUser: onlineUser,);
+                          }
 
-                    }
-                  ),
-                )
-              },
-              child: Padding(
-                padding: const EdgeInsets.all(10),
-                child: Row(
-                  children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(10),
-                      child: Image.network(
-                        onlineUser.imgUrl,
-                        width: 40,
-                        height: 40,
-                        fit: BoxFit.cover,
-                      ),
+                        }
                     ),
-                    const Padding(padding: EdgeInsets.only(left: 20)),
-                    Column(
-                      children: [
-                        Text(
-                          onlineUser.name,
-                          style: const TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 20),
-                        )
-                      ],
-                    )
-                  ],
+                  )
+                },
+                child: Padding(
+                  padding: const EdgeInsets.all(10),
+                  child: Expanded(child: Row(
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: Image.network(
+                          onlineUser.imgUrl,
+                          width: 40,
+                          height: 40,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                      const Padding(padding: EdgeInsets.only(left: 20)),
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.start, // 左对齐
+                        crossAxisAlignment: CrossAxisAlignment.start, // 交叉轴左对齐
+                        children: [
+                          Text(
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            onlineUser.name,
+                            style: const TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 20),
+                          ),
+                          if(null!=lastMessage) Text(
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            lastMessage.message,
+                            textAlign: TextAlign.start,
+                            style: const TextStyle(
+                                fontSize: 14),
+                          )
+                        ],
+                      )
+                    ],
+                  )),
                 ),
-              ),
 
-            );
-          },
-          itemCount: userList.length),
+              );
+            },
+            separatorBuilder: (context, index){
+              return const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16), // 设置左右边距为16
+                child: Divider(
+                  height: 1,
+                  color: Colors.grey, // 分割线颜色
+                ),
+              );
+            },
+            itemCount: userList.length),
+      )
     );
   }
   void updateUi(){

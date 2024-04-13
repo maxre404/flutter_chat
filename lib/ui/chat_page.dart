@@ -80,7 +80,9 @@ class _ChatPageState extends State<ChatPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text('${widget?.chatUser.name}'),
+          elevation: 4
       ),
       body: Column(
         children: [
